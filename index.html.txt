@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简历投递二维码生成器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        #qrcode {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            background-color: white;
+        }
+        #qrcode img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl p-8 space-y-6">
+        <div class="text-center">
+            <h1 class="text-2xl font-bold text-gray-900">简历投递二维码生成器</h1>
+            <p class="mt-2 text-gray-600">粘贴您的在线简历投递网址，即可生成二维码。</p>
+        </div>
+
+        <div>
+            <label for="url-input" class="block text-sm font-medium text-gray-700">简历投递网址</label>
+            <div class="mt-1">
+                <input type="text" id="url-input" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="https://your-company.com/apply">
+            </div>
+        </div>
+
+        <button id="generate-btn" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            生成二维码
+        </button>
+
+        <div id="qr-container" class="hidden text-center space-y-4">
+            <div id="qrcode" class="mx-auto w-64 h-64"></div>
+            <button id="download-btn" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                下载二维码
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const generateBtn = document.getElementById('generate-btn');
+        const downloadBtn = document.getElementById('download-btn');
+        const urlInput = document.getElementById('url-input');
+        const qrContainer = document.getElementById('qr-container');
+        const qrcodeDiv = document.getElementById('qrcode');
+        let qrCodeInstance = null;
+        let qrCodeDataURL = '';
+
+        generateBtn.addEventListener('click', () => {
+            const url = urlInput.value.trim();
+            if (url) {
+                qrcodeDiv.innerHTML = '';
+                qrCodeInstance = new QRCode(qrcodeDiv, {
+                    text: url,
+                    width: 256,
+                    height: 256,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+                
+                setTimeout(() => {
+                    const canvas = qrcodeDiv.querySelector('canvas');
+                    if(canvas){
+                        qrCodeDataURL = canvas.toDataURL('image/png');
+                        downloadBtn.disabled = false;
+                    }
+                }, 100);
+
+                qrContainer.classList.remove('hidden');
+            } else {
+                alert('请输入有效的网址！');
+            }
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            if (qrCodeDataURL) {
+                const link = document.createElement('a');
+                link.download = 'resume-qr-code.png';
+                link.href = qrCodeDataURL;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        });
+    </script>
+</body>
+</html>
+
